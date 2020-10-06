@@ -54,7 +54,7 @@ tunnel_server = openServer('192.168.0.1', 'default_user', port=22)
 final_server = openServer('192.168.0.2', 'default_user', tunnel=tunnel_server)
 ```
 
-### Interact with the running jobs
+### Interact with the running jobs
 
 #### Fetch the list of jobs currently running
 
@@ -82,6 +82,12 @@ the arguments *command=* and *username=*.
 ```python
 job_list = getJobs(final_server, command='squeue -o %all -u', username='other_user')
 ```
+
+Since the function will concatenate the strings for *command=* and *username=*, it is essential to keep the username at the end of
+of the expected command and not specify it in the command, e.g. avoid "squeue -u other_user -o %all" as the resulting command
+send to the server will be "squeue -u other_user -o %all other_user".
+
+One way to circumvent this issue, is to set ```username=""``` (empty string).
 
 #### Kill running job(s)
 
