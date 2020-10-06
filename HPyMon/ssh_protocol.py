@@ -7,9 +7,10 @@ from sshtunnel import SSHTunnelForwarder
 
 # Define the server class
 class Server:
-    def __init__(self, ip_address, username, identification={'type':'publickey', 'key':'~/.ssh/id_rsa'}, port=22, tunnel=None):
+    def __init__(self, name, ip_address, username, identification={'type':'publickey', 'key':'~/.ssh/id_rsa'}, port=22, tunnel=None):
 
         # Get the server info
+        self.name = name
         self.ip = ip_address
         self.port = port
 
