@@ -203,4 +203,55 @@ molecule name
 
 All combinations can be used.
 
-#### The Selection class 
+#### The Selection class
+
+For more convenience, the selection syntax can be sorted in an instance of the class *Selection* that can be used
+then later to apply the desired selection. The instance can be generated using the function **generateSelection()**.
+
+```python
+from HPyMon import *
+
+# Define the selection syntax in the directory
+selection_dict = {
+1 : ( None, ['lipids'], -1 ),
+2 : ( 'Lipid name', ['DPPC', 'DSPC'], 0 )
+}
+
+# Create the instance
+current_selection = generateSelection(selection_dict)
+```
+
+H-PyMon assume that the scheduler used here is Slurm and that the sorting and selection are based on the path found in *WORK_DIR*.
+The column can be changed using the argument *column_name=*, and the syntax adapted to the given column.
+
+#### Select and sort the jobs in the list
+
+To select and sort jobs form the list, the function **sortJobs()** can be used.
+
+```python
+from HPyMon import *
+
+# Create the server instance
+final_server = openServer('192.168.0.2', 'default_user', port=22)
+
+# Get the list of the jobs currently running
+job_list = getJobs(final_server)
+
+# Define the selection syntax in the directory
+selection_dict = {
+1 : ( None, ['lipids'], -1 ),
+2 : ( 'Lipid name', ['DPPC', 'DSPC'], 0 )
+}
+
+# Create the instance
+current_selection = generateSelection(selection_dict)
+
+# Sort and select the jobs
+selected_jobs = sortJobs(job_list, current_selection)
+```
+
+To return only selected jobs - regardless of any sorting - the function **selectJobs()** can be used instead
+
+```python
+selected_jobs = selectJobs(job_list, current_selection)
+```
