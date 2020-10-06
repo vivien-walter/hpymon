@@ -107,3 +107,100 @@ cancelJobs(final_server, 12345678, 12345679)
 ```
 
 ### Select and sort jobs
+
+H-PyMon can be used to select specific jobs and sort them based on the path of their source directory - assuming that the
+directories have been sorted initially.
+
+For instance, let's take the following paths of different jobs:
+
+```bash
+>>> /user_name/lipids/DPPC/288K/
+>>> /user_name/lipids/DPPC/358K/
+>>> /user_name/lipids/DOPC/288K/
+>>> /user_name/lipids/DSPC/288K/
+>>> /user_name/proteins/KALP/
+```
+
+In this example, we can see that the source directories of the jobs can be sorted by type of molecule (lipids/proteins), molecule name (DPPC/DOPC for the lipids, KALP for the proteins) and, for the lipids only, by temperature (288K/358K). using H-PyMon we will see how the job list can be refined to only display a specific list of simulation.
+
+#### The selection syntax
+
+The selection of jobs in H-PyMon is made using a dictionary describing which elements of the path should be considered, and what for. To illustrate it, let us take the following path and split it in its different elements:
+
+```
+/user_name/lipids/DPPC/288K/
+ (0)       (1)    (2)  (3)
+```
+
+The path here is made of 4 folder levels: (0) the user name, (1) the type of molecule, (2) the name of the molecule and (3) the temperature. These indices are essential as we need them to point which element should be used to select or sort the jobs.
+
+The standard syntax for the dictionary is
+
+```python
+selection_dict = {
+element_idx : ( sorting_name, [selection_values], sorting_position )
+}
+```
+
+* The *element_idx* is the index of the element in the source directory path to use for sorting and/or selecting. E.g. to sort by temperature in the example above, *element_idx* should be equal to 3.
+* The *sorting_name* is a string that can is used to display the category used to sort the jobs. It can be anything, even unrelated
+to the names found in the folders (e.g. "Lipid name"). If the element is not used to sort but only select, use None here instead.
+* The list of *[selection_values]* is an list of folder names that can be used to select only specific jobs. E.g. if we want to select
+the jobs related to DSPC and DOPC lipids, the list should be ['DPPC','DSPC']. For only the DPPC, use then ['DPPC']. If the element is not used to select but only sort, use None here instead.
+* The *sorting_position* is the position of the element in the tree structure obtained by sorting the jobs on several levels.
+The value should be an integer going from 0 to inf. If the element is not used to sort, use -1 instead.
+
+**Example(s):**
+
+*All the follow examples are based on the bath given above*
+
+* Select based on one element, here the type of molecule (select only 'lipids'):
+    ```python
+    selection_dict = {
+    1 : ( None, ['lipids'], -1 )
+    }
+    ```
+
+* Select based on two elements, here the type of molecule (select only 'lipids') and the molecule name (select only 'DPPC' and 'DSPC')
+  ```python
+  selection_dict = {
+  1 : ( None, ['lipids'], -1 ),
+  2 : ( None, ['DPPC', 'DSPC'], -1 )
+  }
+  ```
+
+* Sort based on one element, here the name of the lipid
+  ```python
+  selection_dict = {
+  2 : ( 'Lipid name', None, 0 ),
+  }
+  ```
+
+* Sort based on two elements, here the name of the lipid and the temperature, but sort by the temperature first
+  ```python
+  selection_dict = {
+  2 : ( 'Lipid name', None, 1 ),
+  3 : ( 'Temperature', None, 0 )
+  }
+  ```
+
+* Select based on one element and sort based on another element, here respectively the type of molecule and the temperature
+  ```python
+  selection_dict = {
+  1 : ( None, ['lipids'], -1 ),
+  3 : ( 'Temperature', None, 0 )
+  }
+  ```
+
+* Select based on one element and sort while selecting based on another element, here respectively the type of molecule and the
+molecule name
+  ```python
+  selection_dict = {
+  1 : ( None, ['lipids'], -1 ),
+  2 : ( 'Lipid name', ['DPPC', 'DSPC'], 0 )
+  }
+  ```
+
+All combinations can be used.
+
+#### The Selection class 
