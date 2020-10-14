@@ -96,3 +96,58 @@ An *advanced settings* tab is also available, with the following inputs:
 * **Kill jobs:** Command to use on the HPC server to kill the selected jobs if requested. The identification of the jobs are retrieved using the input *Column for job IDs* set below.
 
 * **Column for job IDs:** Column of the job list display table in HPyMon to use to get the job identifications and use them to kill the jobs on the server.
+
+The user settings can be changed anytime, by going in the menu of HPyMon and selecting **Help/User Settings.**
+
+### Server Settings
+
+In order to connect to a server, you will have to create its settings and save them in the memory. This can be done in the menu **Servers/Add Server** of HPyMon - or by pressing the *Ctrl + N* (or *CMD + N* on MacOSX) keys.
+
+The Server Settings window can also be used to Edit the settings after creation.
+
+This window have the following inputs:
+
+* **Server Name:** Name of the server to display in HPyMon. Only useful for organisation purposes.
+
+* **Read job from this server?** If this box is ticked, HPyMon will send a query to retrieve a list of jobs on this server. Unticking the box can be useful if the server is only used as a tunnel (see below).
+
+* **Server Address:** Address of the server to connect to. Can be either an IP address or a standard address (e.g myservername.myuniversity.co.uk). You should use the same address as the one you use to connect on your HPC via Terminal.
+
+* **Server Port:** Port of the server to connect to. You should use the same port as the one you use to connect on your HPC via Terminal.
+
+* **Username:** Username used to connect on the server. You should use the same username as the one you use to connect on your HPC via Terminal.
+
+* **Use a Public key/Password:** Selection of the type of identification to use on the server. See below.
+
+* **Path to Key:** (*when Use a Public Key is selected*) Absolute path to the file where the public keys are stored on your computer.
+
+* **Password:** (*when Use a Password is selected*) Password to use to connect on the server. *Note: the password is stored on the crypted keyring of the computer, not in the HPyMon files.*
+
+To connect on some remote server, it might be critical to tunnel through another server. This can be set in HPyMon in the *tunnel* tab. This tab has the following inputs:
+
+* **Use a tunnel?** Tick this box to use a tunnel to connect to this server.
+
+* **Tunnel through:** Select the server to use as a tunnel to connect to this one. The tunnel server should be already saved in HPyMon memory in order to be used.
+
+Similarly to the User Settings, an *advanced settings* tab is available on the Server settings window.
+
+* **Use same Username in job query?** When this box is ticked, the username used to connect to the server is used for the job query command. If unticked, the username used instead
+will be the one specified in *Job query Username* below. This can be useful to check the status of the job of another user.
+
+* **Job query Username:** Username to use for the job query.
+
+* **Get jobs:** Command to use on the HPC server to retrieve the list of jobs. The command is completed with the username, such as the command
+
+    ```bash
+    > squeue -o %all -u
+    ```
+
+    will be completed by HPyMon as
+
+    ```bash
+    > squeue -o %all -u username
+    ```
+
+* **Kill jobs:** Command to use on the HPC server to kill the selected jobs if requested. The identification of the jobs are retrieved using the input *Column for job IDs* set below.
+
+* **Column for job IDs:** Column of the job list display table in HPyMon to use to get the job identifications and use them to kill the jobs on the server.
