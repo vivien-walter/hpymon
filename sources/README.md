@@ -47,7 +47,7 @@ How-to compile a H-PyMon executable from source files
     > fbs installer
     ```
 
-## Source(s)
+## Source(s)
 
 - virtualenv documentation: https://virtualenv.pypa.io/en/latest/
 
