@@ -2,7 +2,7 @@
 
 ![HPyMon logo](https://github.com/vivien-walter/hpymon/blob/main/sources/main/icons/linux/256.png)
 
-[version](https://img.shields.io/badge/version-beta-f39f37)
+![version](https://img.shields.io/badge/version-beta-f39f37)
 
 HPyMon is a Python-based GUI software made to display the job running on a distant HPC.
 
