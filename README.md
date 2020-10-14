@@ -67,6 +67,8 @@ Below are described the main features of HPyMon and how to use them.
 During your first connection to HPyMon, you will be invited to input your **user settings**. These information will be used to define the default settings of each new server you will create.
 This information are only here to save you time when setting a server, and they can all be changed while creating a server if needed.
 
+![User settings - Basic tab](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/user_1.png)
+
 The description of the different inputs are listed below:
 
 * **User Name:** Default user name used to connect to the server. Will be used to pre-fill each new server settings when created.
@@ -78,6 +80,8 @@ The description of the different inputs are listed below:
 * **Path to key:** Absolute path to the file where the public keys are stored on your computer.
 
 * **Use dark theme?** Set the graphic theme of HPyMon to dark. Changing the theme requires HPyMon to be restarted in order to be applied.
+
+![User settings - Basic tab](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/user_2.png)
 
 An *advanced settings* tab is also available, with the following inputs:
 
@@ -105,6 +109,8 @@ In order to connect to a server, you will have to create its settings and save t
 
 The Server Settings window can also be used to Edit the settings after creation.
 
+![Server settings - Connexion tab](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/server_1.png)
+
 This window have the following inputs:
 
 * **Server Name:** Name of the server to display in HPyMon. Only useful for organisation purposes.
@@ -123,11 +129,15 @@ This window have the following inputs:
 
 * **Password:** (*when Use a Password is selected*) Password to use to connect on the server. *Note: the password is stored on the crypted keyring of the computer, not in the HPyMon files.*
 
+![Server settings - Tunnel tab](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/server_2.png)
+
 To connect on some remote server, it might be critical to tunnel through another server. This can be set in HPyMon in the *tunnel* tab. This tab has the following inputs:
 
 * **Use a tunnel?** Tick this box to use a tunnel to connect to this server.
 
 * **Tunnel through:** Select the server to use as a tunnel to connect to this one. The tunnel server should be already saved in HPyMon memory in order to be used.
+
+![Server settings - Advanced tab](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/server_3.png)
 
 Similarly to the User Settings, an *advanced settings* tab is available on the Server settings window.
 
