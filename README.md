@@ -6,6 +6,8 @@
 
 HPyMon is a Python-based GUI software made to display the job running on a distant HPC.
 
+![Main window](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/main.png)
+
 ## Description
 
 ### General Information
