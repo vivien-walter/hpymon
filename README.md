@@ -4,7 +4,7 @@
 
 ![version](https://img.shields.io/badge/version-beta-f39f37)
 
-HPyMon is a Python-based GUI software made to display the job running on a distant HPC.
+HPyMon (HPC Python Monitor) is a Python-based GUI software made to display the job running on a distant HPC.
 
 ![Main window](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/main.png)
 
@@ -19,6 +19,9 @@ HPyMon is a Python-based GUI software made to display the job running on a dista
 **Author:** Vivien Walter
 
 **Contact:** https://vivien-walter.github.io
+
+HPyMon is relying on **PyQt5** for its graphical user interface (GUI). All other packages, libraries and modules used by
+HPyMon are listed in the *Requirements* list below.
 
 ### Requirements
 
@@ -35,6 +38,8 @@ the modules are pre-installed inside the executable and no further action is req
 * keyring == 21.4.0
 
 *Note: newer or older version(s) of the modules could work, but the author only tested those.*
+
+## Table of Contents
 
 ## Installation
 
@@ -226,3 +231,9 @@ To edit or delete existing custom display, you can use the custom display manage
 ![Custom display manager](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/display_manager.png)
 
 In this interface, similar to the server manager, you can chose to **Edit** or **Delete** any of the custom displays currently stored in HPyMon memory.
+
+## Troubleshooting
+
+The following note(s) should be taken into consideration while using HPyMon:
+
+* HPyMon has only been tested on HPC servers managed using the **Slurm** scheduler. While it should be versatile enough to be used with other scheduler, they have not been tested and might require some adjustments.
