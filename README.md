@@ -163,3 +163,20 @@ will be the one specified in *Job query Username* below. This can be useful to c
 * **Kill jobs:** Command to use on the HPC server to kill the selected jobs if requested. The identification of the jobs are retrieved using the input *Column for job IDs* set below.
 
 * **Column for job IDs:** Column of the job list display table in HPyMon to use to get the job identifications and use them to kill the jobs on the server.
+
+### Connection to a server
+
+Once the server(s) have been defined, you can connect to them using different ways:
+
+* **Connect to a single server.** This can be done using the HPyMon menu and selecting **Servers/Connect to.../Select** - or alternatively the shortcut *Ctrl + Shift + O* (*CMD + Shift + O* on MacOS).
+This will open a new window where you can select the server you want to connect to.
+
+    ![Connect to a single server](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/connection.png)
+
+* **Connect to all servers at once.** To save time, you can decide to connect to all the servers stored in the memory - depending whether you have ticked the box *Read job from this server?* in the settings of course.
+To do so, you have three options: (i) Using the **Connect** button on the front panel of HPyMon, (ii) Using the HPyMon menu and selecting **Servers/Connect to.../All** or (iii) using the shortcut *Ctrl + O* (*CMD + O* on MacOS).
+
+    When the connection to all the servers is running, a popup window with a progress bar will appear to keep track of the progress of the network connection.
+
+Before retrieving the jobs, HPyMon will briefly try to connect to the server, sending a basic useless command (i.e. *ls*). If the command cannot be passed, HPyMon will assume that the server cannot be reached and send
+an error message. During multiple connection, HPyMon should proceed to the next server when one server crashes.
