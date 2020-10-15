@@ -180,3 +180,27 @@ To do so, you have three options: (i) Using the **Connect** button on the front 
 
 Before retrieving the jobs, HPyMon will briefly try to connect to the server, sending a basic useless command (i.e. *ls*). If the command cannot be passed, HPyMon will assume that the server cannot be reached and send
 an error message. During multiple connection, HPyMon should proceed to the next server when one server crashes.
+
+### Job list display
+
+After connection to the server(s), the main display of HPyMon will be used to display the jobs running on the different servers. Each server will have its jobs displayed in its **own tab**.
+
+![Main window](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/main.png)
+
+The job list and status is not constantly refreshed. To refresh the list, use the **Refresh** button which has replaced the *Connect* one.
+*Note: This button will only refresh the list of the server/tab currently selected.*
+
+Two types of interactions can be made with the display:
+
+* **Use custom display?** By default, all the columns returned by the *squeue* command (in *Slurm*) will be displayed - which can be too much sometimes. To refine the display,
+only a series of these columns can be selected to be displayed in the job list tab. After ticking this box, the desired custom display should be selected in the Combo box next to it.
+
+* **Contextual menu.** Right click on any row of the job list table will display a contextual menu, with several options to interact with the selected job(s).
+
+    ![Contextual menu](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/context_menu.png)
+
+    * **Kill Job** will send a command to the server to cancel this specific job. An alert will ask the user to confirm its choice, but once the cancellation has been confirmed this operation cannot be undone.
+
+    * **Select Columns** (*If no custom display has been selected*). This will open a new window to create a custom display of the job list. See below for more information.
+
+    * **Edit Selected Columns** (*If a custom display has been selected*). This will open a new window to edit the current selected custom display of the job list. See below for more information.
