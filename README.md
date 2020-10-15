@@ -41,6 +41,19 @@ the modules are pre-installed inside the executable and no further action is req
 
 ## Table of Contents
 
+* [Installation](#installation)
+    * [Using the executable](#using-the-executable)
+    * [Compile from source](#compile-from-source)
+    * [Use the library](#use-the-library)
+* [How-To Use HPyMon](#how-to-use-hpymon)
+    * [User Settings](#user-settings)
+    * [Server Settings](#server-settings)
+    * [Connection to a server](#connection-to-a-server)
+    * [Job list display](#job-list-display)
+    * [Custom display creation](#custom-display-creation)
+    * [Custom display management](#custom-display-management)
+* [Troubleshooting](#troubleshooting)
+
 ## Installation
 
 ### Using the executable
