@@ -204,3 +204,25 @@ only a series of these columns can be selected to be displayed in the job list t
     * **Select Columns** (*If no custom display has been selected*). This will open a new window to create a custom display of the job list. See below for more information.
 
     * **Edit Selected Columns** (*If a custom display has been selected*). This will open a new window to edit the current selected custom display of the job list. See below for more information.
+
+### Custom display creation
+
+Custom display of the job list can be created using the *contextual menu* of the main job list display (see above), or alternatively the HPyMon menu by selecting
+**Job Display/New Column Selection**. This will open a new window to create the new custom display.
+
+![Custom display creation](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/custom_display.png)
+
+*Note: Connection to at least one server is required to open the custom display creation window, as HPyMon will retrieve the list of columns from the server.*
+
+To keep a column in the custom display, just **tick the corresponding checkbox** next to it. Give the custom display a name in the **Selection Name** entry field to find it later.
+When you are done, just click on the **Save** button.
+
+Once the custom display has been created, you can select it in the combo box of the main panel of HPyMon to refine the job list display.
+
+### Custom display management
+
+To edit or delete existing custom display, you can use the custom display manager of HPyMon. It can be accessed using the HPyMon menu by selecting **Job Display/Manage Custom Displays**.
+
+![Custom display manager](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/display_manager.png)
+
+In this interface, similar to the server manager, you can chose to **Edit** or **Delete** any of the custom displays currently stored in HPyMon memory.
