@@ -5,6 +5,7 @@ from application_gui.common_gui_functions import _open_window
 from application_gui.window_about import aboutHelpWindow
 from application_gui.window_column_selection import selectColumnsWindow
 from application_gui.window_connect_servers import connectServersWindow
+from application_gui.window_custom_display import selectCustomDisplayWindow
 from application_gui.window_user import userSettingsWindow
 from application_gui.window_manage_displays import manageDisplayWindow
 from application_gui.window_manage_servers import manageServerWindow
@@ -78,7 +79,7 @@ class menuBar:
         self.serverMenu.closeButton = qtw.QAction("Quit H-PyMon", self.parent)
         self.serverMenu.closeButton.setShortcut("Ctrl+Q")
         self.serverMenu.closeButton.setStatusTip("Close the software.")
-        self.serverMenu.closeButton.triggered.connect(qtw.qApp.quit)
+        self.serverMenu.closeButton.triggered.connect(self.parent.close)
         self.serverMenu.addAction(self.serverMenu.closeButton)
 
     # ---------------------------
@@ -88,13 +89,19 @@ class menuBar:
         # Initialise
         self.displayMenu = self.mainMenu.addMenu("Job Display")
 
-        # Add new server
+        # Add new column selection
         self.displayMenu.newDisplayButton = qtw.QAction("New Column Selection", self.parent)
         self.displayMenu.newDisplayButton.setStatusTip("Create a new custom column selection for the jobs.")
         self.displayMenu.newDisplayButton.triggered.connect(self.callNewColumnDisplayWindow)
         self.displayMenu.addAction(self.displayMenu.newDisplayButton)
 
-        self.serverMenu.addSeparator()
+        # Add new custom display
+        self.displayMenu.newDisplayButton = qtw.QAction("New Custom Display", self.parent)
+        self.displayMenu.newDisplayButton.setStatusTip("Create a new custom display for the jobs.")
+        self.displayMenu.newDisplayButton.triggered.connect(self.callNewCustomDisplayWindow)
+        self.displayMenu.addAction(self.displayMenu.newDisplayButton)
+
+        self.displayMenu.addSeparator()
 
         # Manage the existing servers
         self.displayMenu.manageDisplayButton = qtw.QAction("Manage Custom Displays", self.parent)
@@ -160,6 +167,21 @@ class menuBar:
 
             # Open the new selection option
             _open_window(self.parent, selectColumnsWindow, 'column_selection', column_names=column_names)
+
+    # -------------------------------------
+    # Display the display management window
+    def callNewCustomDisplayWindow(self):
+
+        # Only process if an active die is displayed
+        if self.parent.active_server:
+
+            # Select the current tab and retrieve the job list
+            _current_tab_id = self.parent.serverTabDisplay.currentIndex()
+            job_content = self.parent.serverTabDisplay.displayedTabs[ _current_tab_id ].jobs.loc[0]
+            column_names = self.parent.serverTabDisplay.displayedTabs[ _current_tab_id ].jobs.columns
+
+            # Open the new selection option
+            _open_window(self.parent, selectCustomDisplayWindow, 'custom_display', column_names=column_names, example_job=job_content)
 
     # -------------------------------------
     # Display the display management window

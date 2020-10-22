@@ -4,6 +4,7 @@ import PyQt5.QtWidgets as qtw
 
 from application_gui.common_gui_functions import _open_window, errorMessage, warningMessage
 from application_gui.window_column_selection import selectColumnsWindow
+from application_gui.window_custom_display import selectCustomDisplayWindow
 
 from get_jobs import getJobList, killJobs
 from settings import getDisplayList, loadDisplay
@@ -91,6 +92,8 @@ class serverTab:
         self.parent = parent
         self.server = server
 
+        self.loaded_display= None
+
         if self.server is not None:
             self.refreshJobList()
 
@@ -108,6 +111,9 @@ class serverTab:
         self.createCustomDisplayWidget(self.tabLayout)
         self.createTableWidget(self.tabLayout)
 
+        if self.server is not None:
+            self.selectDisplayType()
+
         # Load the layout
         self.tabWidget.setLayout(self.tabLayout)
 
@@ -121,11 +127,13 @@ class serverTab:
 
         # Checkbox to use the custom display
         self.customDisplayCheckBox = qtw.QCheckBox("Use custom display?")
-        self.customDisplayCheckBox.toggled.connect(self.selectDisplayType)
 
         if self.server is None:
             self.customDisplayCheckBox.setEnabled(False)
+        else:
+            self.customDisplayCheckBox.setChecked( self.server.use_display )
 
+        self.customDisplayCheckBox.toggled.connect(self.selectDisplayType)
         self.customDisplayLayout.addWidget(self.customDisplayCheckBox)
 
         # Combobox to use the custom display
@@ -133,11 +141,15 @@ class serverTab:
         self.customDisplayComboBox.addItem("---")
         for display_name in self.custom_displays:
             self.customDisplayComboBox.addItem(display_name)
-        self.customDisplayComboBox.currentTextChanged.connect(self.selectDisplayType)
 
         if self.server is None:
             self.customDisplayComboBox.setEnabled(False)
+        else:
+            if self.server.use_display:
+                _col_ID = self.customDisplayComboBox.findText(self.server.display_name, qtc.Qt.MatchFixedString)
+                self.customDisplayComboBox.setCurrentIndex(_col_ID)
 
+        self.customDisplayComboBox.currentTextChanged.connect(self.selectDisplayType)
         self.customDisplayLayout.addWidget(self.customDisplayComboBox)
 
         # Display the widget
@@ -186,13 +198,36 @@ class serverTab:
 
             # Retrieve the custom display instance
             _display_details = loadDisplay(custom_selection)
-            loaded_display = generateCustomDisplay(_display_details)
+            self.loaded_display = generateCustomDisplay(_display_details)
 
-            # Get the name of the column to display
-            self.selected_columns = loaded_display.columns
+            # Process a column selection
+            if self.loaded_display.display_type == 'column':
 
-            # Load the table content
-            self.generateTable(custom_display=False)
+                # Get the name of the column to display
+                self.selected_columns = self.loaded_display.columns
+
+                # Load the table content
+                self.generateTable(custom_display=False)
+
+            # Process a custom selection
+            elif 'selection' in self.loaded_display.display_type:
+
+                # Make the job selection
+                if len(self.loaded_display.selection.sorting['columns']) != 0:
+                    self.selected_jobs = self.loaded_display.selection.sortJobs(self.jobs)
+                else:
+                    self.selected_jobs = self.loaded_display.selection.selectJobs(self.jobs)
+
+                # Use a column selection
+                if self.loaded_display.display_type == 'selection_column':
+                    self.selected_columns = self.loaded_display.columns
+
+                # Use the full names
+                else:
+                    self.selected_columns = self.jobs.columns
+
+                # Load the table content
+                self.generateTable(custom_display=True)
 
         # Use the basic display
         else:
@@ -223,7 +258,7 @@ class serverTab:
 
         # Populate the table
         if self.server is not None:
-            self.jobInTable()
+            self.jobInTable(custom_display=custom_display)
 
         # Resize the columns
         header = self.jobsTable.horizontalHeader()
@@ -232,7 +267,7 @@ class serverTab:
 
     # -------------------------
     # Add the jobs to the table
-    def jobInTable(self):
+    def jobInTable(self, custom_display=False):
 
         # Delete the values
         rowCount = self.jobsTable.rowCount()
@@ -240,20 +275,85 @@ class serverTab:
             for i in range(rowCount):
                 self.jobsTable.removeRow(0)
 
-        # Fill the table
-        if len(self.jobs) > 0:
-            for i, row in self.jobs.iterrows():
+        # Custom display
+        if custom_display:
+            self.addCustomTableContent(self.selected_jobs, current_id=0)
+
+        # Normal display
+        else:
+
+            # Fill the table
+            if len(self.jobs) > 0:
+                for i, row in self.jobs.iterrows():
+
+                    # Fill the rows
+                    self.jobsTable.insertRow(i)
+
+                    # Fill the columns
+                    j = 0
+                    for data, column_name in zip(row, row.index):
+                        if column_name in self.selected_columns:
+                            item = qtw.QTableWidgetItem(str(data))
+                            self.jobsTable.setItem(i, j, item)
+                            j += 1
+
+    # ------------------------------
+    # Add a custom selection of jobs
+    def addCustomTableContent(self, job_list, pre_symbol='', current_id=0, name_id=0):
+
+        # Process a dictionary
+        if isinstance(job_list, dict):
+
+            # Set the font
+            boldFont = qtg.QFont()
+            boldFont.setBold(True)
+
+            # Process all sections
+            for section_name in job_list.keys():
 
                 # Fill the rows
-                self.jobsTable.insertRow(i)
+                self.jobsTable.insertRow(current_id)
 
-                # Fill the columns
-                j = 0
-                for data, column_name in zip(row, row.index):
-                    if column_name in self.selected_columns:
-                        item = qtw.QTableWidgetItem(str(data))
-                        self.jobsTable.setItem(i, j, item)
-                        j += 1
+                # Add the header
+                section_type = self.loaded_display.selection.sorting['names'][name_id]
+                headerText = pre_symbol + ' ' + section_type + ': ' + section_name.capitalize()
+                item = qtw.QTableWidgetItem(headerText)
+                self.jobsTable.setSpan(current_id, 0, 1, len( self.selected_columns ))
+                self.jobsTable.setItem(current_id, 0, item)
+                self.jobsTable.item(current_id,0).setFont(boldFont)
+
+                # Color the background of the cell
+                if self.parent.config['USER']['dark_theme'] == 'True':
+                    bcg_color = qtg.QColor(100,130,147)
+                else:
+                    bcg_color = qtg.QColor(245,245,245)
+
+                self.jobsTable.item(current_id,0).setBackground(bcg_color)
+
+                current_id += 1
+
+                # Process the content of the dictionary element
+                current_id = self.addCustomTableContent(job_list[section_name], pre_symbol=pre_symbol+'>', current_id=current_id, name_id=name_id+1)
+
+        # Fill the table
+        else:
+            if len(job_list) > 0:
+                for i, row in job_list.iterrows():
+
+                    # Fill the rows
+                    self.jobsTable.insertRow(current_id)
+
+                    # Fill the columns
+                    j = 0
+                    for data, column_name in zip(row, row.index):
+                        if column_name in self.selected_columns:
+                            item = qtw.QTableWidgetItem(str(data))
+                            self.jobsTable.setItem(current_id, j, item)
+                            j += 1
+
+                    current_id += 1
+
+        return current_id
 
     ##-\-\-\-\-\-\-\-\
     ## CONTEXTUAL MENU
@@ -265,7 +365,10 @@ class serverTab:
 
         contextMenu = qtw.QMenu()
 
+        # Get the row
         row = self.jobsTable.rowAt(event.y())
+
+        # Kill the selected job
         killJobAction = contextMenu.addAction("Kill Job")
         killJobAction.triggered.connect(lambda : self.killSelectedJob(row_id=row))
 
@@ -278,13 +381,14 @@ class serverTab:
         custom_selection = self.customDisplayComboBox.currentText()
 
         if use_custom and custom_selection != "---":
-            customColumns = contextMenu.addAction("Edit Selected Columns")
+            customColumns = contextMenu.addAction("Edit Current Display")
             customColumns.triggered.connect(self.editColumnsDisplay)
         else:
             customColumns = contextMenu.addAction("Select Columns")
             customColumns.triggered.connect(self.selectColumnsDisplay)
 
-        #customDisplay = contextMenu.addAction("Define Custom Display")
+            customDisplay = contextMenu.addAction("Define Custom Display")
+            customDisplay.triggered.connect(lambda : self.createCostumDisplay(row_id=row))
 
         action = contextMenu.exec_(qtg.QCursor.pos())
 
@@ -320,3 +424,13 @@ class serverTab:
 
         # Open the selection in the window
         _open_window(self.parent, selectColumnsWindow, 'column_selection', column_names=self.jobs.columns, loaded_display=selected_display)
+
+    # ----------------------
+    # New custom job display
+    def createCostumDisplay(self, row_id=0):
+
+        # Get the job to use as ref
+        job_content = self.jobs.loc[row_id]
+
+        # Open the custom display creation window
+        _open_window(self.parent, selectCustomDisplayWindow, 'custom_display', column_names=self.jobs.columns, example_job=job_content)

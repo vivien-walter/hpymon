@@ -4,7 +4,7 @@ import PyQt5.QtWidgets as qtw
 
 from application_gui.common_gui_functions import CLabel, CHorizontalSeparator, warningMessage, CLabelledLineEdit
 
-from settings import addServer, serverExists
+from settings import addServer, serverExists, getDisplayList
 from ssh_protocol import generateServer
 
 ##-\-\-\-\-\-\-\-\-\-\-\-\
@@ -152,6 +152,34 @@ class serverSettingsWindow(qtw.QMainWindow):
         self.updateIdentificationLabel()
         self.serverSettingsLayout.addWidget( self.indentificationEntry, _currentRow, 1, 1, 1)
 
+        _currentRow += 1
+        self.serverSettingsLayout.addWidget( CHorizontalSeparator(), _currentRow, 0, 1, -1)
+
+        # Add use custom display checkbox
+        _currentRow += 1
+        self.useDisplayCheckBox = qtw.QCheckBox("Use custom display?")
+        self.useDisplayCheckBox.setChecked( self.server_details['use_display'] )
+        self.useDisplayCheckBox.toggled.connect(self.updateDisplayComboBox)
+        self.serverSettingsLayout.addWidget(self.useDisplayCheckBox, _currentRow, 0, 1, -1)
+
+        # Get the custom display list
+        _custom_displays = getDisplayList()
+
+        # Combobox to use the custom display
+        _currentRow += 1
+        self.customDisplayComboBox = qtw.QComboBox()
+        self.customDisplayComboBox.addItem("---")
+        for display_name in _custom_displays:
+            self.customDisplayComboBox.addItem(display_name)
+        self.customDisplayComboBox.setEnabled( self.server_details['use_display'] )
+
+        # Select the default display
+        if self.server_details['use_display']:
+            _col_ID = self.customDisplayComboBox.findText(self.server_details['display_name'], qtc.Qt.MatchFixedString)
+            self.customDisplayComboBox.setCurrentIndex(_col_ID)
+
+        self.serverSettingsLayout.addWidget(self.customDisplayComboBox, _currentRow, 0, 1, -1)
+
         # Display the widget
         self.serverSettingsWidget.setLayout(self.serverSettingsLayout)
         return self.serverSettingsWidget
@@ -287,6 +315,8 @@ class serverSettingsWindow(qtw.QMainWindow):
         'use_key': self.parent.config['USER']['use_key'].capitalize() == 'True',
         'path_key': self.parent.config['USER']['path_key'],
         'read_jobs': True,
+        'use_display':False,
+        'display_name':'---',
         'use_tunnel': False,
         'tunnel_selection': None,
         'use_queryname': True,
@@ -303,6 +333,16 @@ class serverSettingsWindow(qtw.QMainWindow):
         # Get the server
         opened_server = [self.parent.config[x] for x in self.parent.config.keys() if x == name][0]
 
+        # UPDATE -------------------
+        # --------------------------
+
+        # Check if new settings are missing
+        if 'use_display' not in opened_server.keys():
+            opened_server['use_display'] = False
+            opened_server['display_name'] = '---'
+
+        # --------------------------
+
         # Prepare the data
         self.server_details = {
         'name': name,
@@ -312,6 +352,8 @@ class serverSettingsWindow(qtw.QMainWindow):
         'use_key': opened_server['id_type'] == 'publickey',
         'path_key': opened_server['id_key'],
         'read_jobs': opened_server['read_jobs'] == 'True',
+        'use_display': opened_server['use_display'] == 'True',
+        'display_name':opened_server['display_name'],
         'use_tunnel': False,
         'tunnel_selection': None,
         'use_queryname': True,
@@ -358,6 +400,11 @@ class serverSettingsWindow(qtw.QMainWindow):
         self.indentificationLabel.setText( text )
         self.indentificationEntry.setText( passphrase )
 
+    # ------------------------------------------
+    # Update the status of the display combo box
+    def updateDisplayComboBox(self):
+        self.customDisplayComboBox.setEnabled( self.useDisplayCheckBox.isChecked() )
+
     # -----------------------------------------
     # Update the status of the tunnel combo box
     def updateTunnelComboBox(self):
@@ -385,6 +432,8 @@ class serverSettingsWindow(qtw.QMainWindow):
         'use_key': self.publicKeyRadiobutton.isChecked(),
         'path_key': self.indentificationEntry.text(),
         'read_jobs': self.readJobsCheckBox.isChecked(),
+        'use_display':False,
+        'display_name':'---',
         'use_tunnel': False,
         'tunnel_selection': None,
         'queryname': self.serverUserNameEntry.text(),
@@ -392,6 +441,11 @@ class serverSettingsWindow(qtw.QMainWindow):
         'kill_jobs': self.killJobCmdEntry.text(),
         'kill_col': self.jobIdColEntry.text(),
         }
+
+        # Check for the custom display
+        if self.useDisplayCheckBox.isChecked() and self.customDisplayComboBox.currentText() != "---":
+            new_server_details['use_display'] = True
+            new_server_details['display_name'] = self.customDisplayComboBox.currentText()
 
         # Check for the query name
         if not self.jobUserNameCheckBox.isChecked():

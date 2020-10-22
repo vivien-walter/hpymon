@@ -33,11 +33,11 @@ class aboutHelpWindow(qtw.QMainWindow):
         self.mainLayout.addWidget(imageWidget, alignment=qtc.Qt.AlignCenter)
 
         # Show the title
-        titleText = CLabel("H-PyMon - beta version")
+        titleText = CLabel("HPyMon - v1.0")
         self.mainLayout.addWidget(titleText, alignment=qtc.Qt.AlignCenter)
 
         # Show the text
-        aboutText = qtw.QLabel("""Release Date: 14/10/2020
+        aboutText = qtw.QLabel("""Release Date: 22/10/2020
 Author: Vivien Walter
 Contact: walter.vivien@gmail.com
 

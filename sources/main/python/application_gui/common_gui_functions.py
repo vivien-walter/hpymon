@@ -2,6 +2,10 @@ import PyQt5.QtCore as qtc
 import PyQt5.QtGui as qtg
 import PyQt5.QtWidgets as qtw
 
+##-\-\-\-\-\-\-\-\-\-\-\
+## CALL WINDOW FUNCTIONS
+##-/-/-/-/-/-/-/-/-/-/-/
+
 # -------------------------------------
 # Check if the window is already opened
 def _is_window_open(parent, window_tag):
@@ -112,6 +116,7 @@ def CLabelledLineEdit(label, left_side=True):
         fullLayout.addWidget(widgetLabel)
 
     fullWidget.setLayout(fullLayout)
+    fullWidget.setContentsMargins(0, 0, 0, 0)
     return fullWidget, lineEditWidget
 
 # ---------------------------
@@ -133,3 +138,20 @@ def CVerticalSeparator():
     separator.setLineWidth(1)
 
     return separator
+
+##-\-\-\-\-\-\-\-\-\-\-\
+## EDIT WIDGET PROPERTIES
+##-/-/-/-/-/-/-/-/-/-/-/
+
+# -------------------------------------------------------
+# Update the value of a spin box without releasing signal
+def updateSpinBox(widget, new_value):
+
+    # Block the signals
+    widget.blockSignals(True)
+
+    # Edit the values
+    widget.setValue(new_value)
+
+    # Release the signals
+    widget.blockSignals(False)

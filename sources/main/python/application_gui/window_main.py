@@ -2,6 +2,8 @@ import PyQt5.QtCore as qtc
 import PyQt5.QtGui as qtg
 import PyQt5.QtWidgets as qtw
 
+import time
+
 from application_gui.app_styles import applyStyle
 from application_gui.common_gui_functions import _open_window, CLabel, choice2Message, errorMessage
 from application_gui.display_tab import mainTabWidget
@@ -24,11 +26,13 @@ class mainGUI(qtw.QMainWindow):
         # Initialize the properties of the software Main GUI
         self.appctxt = application_context
         self.application = application_context.app
-        self.title = "H-PyMon"
-        self.version = "beta" #"v1.0.0"
+        self.title = "HPyMon"
+        self.version = "v1.0"
         self.subWindows = {}
         self.servers = []
         self.active_server = False
+        self.periodic_check = False
+        self.periodic_thread = None
 
         # Retrieve the configuration
         if checkFirstUse():
@@ -50,7 +54,23 @@ class mainGUI(qtw.QMainWindow):
         if self.config['USER']['dark_theme'].capitalize() == 'True':
             applyStyle( self.application )
         self.show()
-        self.setFixedSize(850,450)
+        self.setMinimumSize(850,450)
+
+        # Auto-connect to the servers if required
+        if self.config['USER']['autostart'].capitalize() == 'True' and len(self.server_jobs) != 0:
+            self.connectAllServers()
+
+    # -------------------------------------------------------
+    # Close all background threads when the application close
+    def closeEvent(self, event=None):
+
+        # Cancel the periodic check thread
+        if self.periodic_check:
+            self.periodic_thread.stop()
+
+        # Terminate
+        event.accept()
+        qtw.qApp.quit()
 
     # --------------------------
     # Initialise the main widget
@@ -104,7 +124,7 @@ class mainGUI(qtw.QMainWindow):
         # Exit button
         self.exitButton = qtw.QPushButton("Exit")
         self.exitButton.setFixedWidth(125)
-        self.exitButton.clicked.connect(qtw.qApp.quit)
+        self.exitButton.clicked.connect(self.close)
         self.buttonsLayout.addWidget(self.exitButton, alignment=qtc.Qt.AlignRight)
 
         # Display the widget
@@ -176,6 +196,10 @@ class mainGUI(qtw.QMainWindow):
             # Add the tab to the display
             self.serverTabDisplay.newTab(opened_server)
 
+            # Schedule the periodic refresh
+            if not self.periodic_check:
+                self.periodicRefresh()
+
     # ----------------------------------------
     # Connect to all the servers in the memory
     def connectAllServers(self):
@@ -234,6 +258,52 @@ class mainGUI(qtw.QMainWindow):
                 if self.config[server]['read_jobs'] == 'True':
                     self.server_jobs.append( (self.config[server]['address'], server) )
 
+    # ------------------------
+    # Start a periodic refresh
+    def periodicRefresh(self):
+
+        # Only start if allowed
+        if not self.periodic_check and self.config['USER']['autorefresh'].capitalize() == 'True':
+            self.periodic_thread = ServerRefreshTimer(self)
+            self.periodic_thread.refresh.connect(self.refreshAllServers)
+            self.periodic_thread.refresh_state.connect(self.editRefreshState)
+
+    # --------------------------------------
+    # Change the status of the refresh state
+    def editRefreshState(self, isTrue):
+        self.periodic_check = isTrue
+
+    # -----------------------
+    # Refresh all the servers
+    def refreshAllServers(self):
+
+        # Save the initial tab
+        starting_tab_id = self.serverTabDisplay.currentIndex()
+
+        # Loop over all the tabs
+        if self.active_server:
+
+            # Open the progress bar window
+            n_servers = str(len(self.server_jobs))
+            _open_window(self, progressBarWindow, 'progress_bar', title='Refresh...', text='Refreshing Server 1/'+n_servers)
+            self.application.processEvents()
+
+            for tab_id in range(len( self.serverTabDisplay.displayedTabs )):
+
+                # Select the current tab
+                self.serverTabDisplay.setCurrentIndex(tab_id)
+
+                # Refresh the job list
+                self.serverTabDisplay.displayedTabs[tab_id].refreshJobList()
+                self.serverTabDisplay.displayedTabs[tab_id].selectDisplayType()
+
+                # Update the progress bar window
+                self.subWindows['progress_bar'].updateProgress('Refreshing Server '+str(tab_id+1)+'/'+n_servers, (tab_id+1)*100/int(n_servers))
+                self.application.processEvents()
+
+        # Return to the initial tab
+        self.serverTabDisplay.setCurrentIndex(starting_tab_id)
+
 ##-\-\-\-\-\-\-\-\-\-\
 ## OPENED SERVER CLASS
 ##-/-/-/-/-/-/-/-/-/-/
@@ -245,3 +315,55 @@ class OpenedServer:
         self.name = server_class.name
         self.address = server_class.ip
         self.server = server_class
+
+##-\-\-\-\-\-\
+## TIMER CLASS
+##-/-/-/-/-/-/
+
+class ServerRefreshTimer(qtc.QThread):
+
+    # Set the signals
+    refresh_state = qtc.pyqtSignal(object)
+    refresh = qtc.pyqtSignal()
+
+    # Initialise
+    def __init__(self, parent):
+        super(ServerRefreshTimer, self).__init__(parent)
+
+        self.parent_connection = parent
+
+        # Start the event
+        self.start()
+
+    # ----------------------
+    # Run the periodic event
+    def run(self):
+
+        # Set the periodic check variable to True
+        self.refresh_state.emit( True )
+        self.current_state = True
+
+        # Run the event
+        while self.current_state:
+
+            # Set the time to wait to the next iteration
+            _wait_time = float( self.parent_connection.config['USER']['refresh_time'] ) * 60
+            time.sleep(_wait_time)
+
+            # Do the refresh
+            self.refresh.emit()
+
+            # Interrupt if there is a change
+            if self.parent_connection.config['USER']['autorefresh'].capitalize() != 'True':
+                self.stop()
+
+    # -----------------------
+    # Stop the periodic event
+    def stop(self):
+
+        # Set the periodic check variable to False
+        self.current_state = False
+        self.refresh_state.emit( False )
+
+        # Stop the event
+        self.quit()

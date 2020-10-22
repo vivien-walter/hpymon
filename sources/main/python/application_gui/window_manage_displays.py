@@ -6,9 +6,10 @@ from functools import partial
 
 from application_gui.common_gui_functions import CLabel, CHorizontalSeparator, warningMessage, _open_window
 from application_gui.window_column_selection import selectColumnsWindow
+from application_gui.window_custom_display import selectCustomDisplayWindow
 
 from selection import generateCustomDisplay
-from settings import addServer, serverExists, removeDisplay, getDisplayList, loadDisplay
+from settings import addServer, serverExists, removeDisplay, getDisplayNameTypeList, loadDisplay
 from ssh_protocol import generateServer
 
 ##-\-\-\-\-\-\-\-\-\-\-\-\
@@ -27,7 +28,7 @@ class manageDisplayWindow(qtw.QMainWindow):
         self.setWindowTitle("Manage Custom Displays")
 
         # Get the list of display
-        self.display_list = getDisplayList()
+        self.display_list, self.display_types = getDisplayNameTypeList()
 
         # Populate the panel
         self.createListDisplays(self.mainLayout)
@@ -59,8 +60,8 @@ class manageDisplayWindow(qtw.QMainWindow):
         self.displaySettingsLayout = qtw.QVBoxLayout(self.displaySettingsWidget)
 
         # Generate the table of servers
-        self.displaysTable = qtw.QTableWidget(0, 3)
-        self.displaysTable.setHorizontalHeaderLabels( ['', '', 'Name'] )
+        self.displaysTable = qtw.QTableWidget(0, 4)
+        self.displaysTable.setHorizontalHeaderLabels( ['', '', 'Name', 'Type'] )
 
         self.displaysTable.setSelectionMode(qtw.QAbstractItemView.NoSelection)
         self.displaysTable.setEditTriggers(qtw.QAbstractItemView.NoEditTriggers)
@@ -128,7 +129,7 @@ class manageDisplayWindow(qtw.QMainWindow):
 
                 # Prepare the edit button
                 serverEditButton = qtw.QPushButton("Edit")
-                serverEditButton.clicked.connect(partial(self.editDisplay, name=name))
+                serverEditButton.clicked.connect(partial(self.editDisplay, id=i))
                 serverEditButton.setFixedWidth(75)
 
                 if not self.parent.active_server:
@@ -143,10 +144,11 @@ class manageDisplayWindow(qtw.QMainWindow):
                 self.displaysTable.setCellWidget(i, 0, serverEditButton)
                 self.displaysTable.setCellWidget(i, 1, serverDeleteButton)
                 self.displaysTable.setItem(i, 2, qtw.QTableWidgetItem(str(name)))
+                self.displaysTable.setItem(i, 3, qtw.QTableWidgetItem(str(self.display_types[i])))
 
         # Resize the columns
         header = self.displaysTable.horizontalHeader()
-        for i in range( 3 ):
+        for i in range( 4 ):
             header.setSectionResizeMode(i, qtw.QHeaderView.ResizeToContents)
 
     ##-\-\-\-\-\-\-\-\-\
@@ -169,19 +171,28 @@ class manageDisplayWindow(qtw.QMainWindow):
 
     # ---------------------------------------------
     # Close the window and edit the selected server
-    def editDisplay(self, name=None):
+    def editDisplay(self, id=0):
+
+        # Get the current display
+        name = self.display_list[id]
+        current_type = self.display_types[id]
 
         # Get the current tab
         _current_tab_id = self.parent.serverTabDisplay.currentIndex()
         current_tab = self.parent.serverTabDisplay.displayedTabs[ _current_tab_id ]
+        job_content = current_tab.jobs.loc[0]
         column_names = current_tab.jobs.columns
 
         # Load the current selection
         display_dict = loadDisplay(name)
         selected_display = generateCustomDisplay(display_dict)
 
-        # Open the edit settings window
-        _open_window(self.parent, selectColumnsWindow, 'column_selection', column_names=column_names, loaded_display=selected_display)
+        # Load a column selection
+        if current_type == 'column':
+            _open_window(self.parent, selectColumnsWindow, 'column_selection', column_names=column_names, loaded_display=selected_display)
+
+        else:
+            _open_window(self.parent, selectCustomDisplayWindow, 'custom_display', column_names=column_names, example_job=job_content, loaded_display=selected_display)
 
         # Close the current window
         self.close()
@@ -197,7 +208,7 @@ class manageDisplayWindow(qtw.QMainWindow):
             removeDisplay(name)
 
             # Get the list of display
-            self.display_list = getDisplayList()
+            self.display_list, self.display_types = getDisplayNameTypeList()
 
             # Refresh the display
             self.updateDisplayList()

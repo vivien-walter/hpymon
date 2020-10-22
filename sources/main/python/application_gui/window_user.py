@@ -2,7 +2,7 @@ import PyQt5.QtCore as qtc
 import PyQt5.QtGui as qtg
 import PyQt5.QtWidgets as qtw
 
-from application_gui.common_gui_functions import CLabel, CLabelledLineEdit, warningMessage
+from application_gui.common_gui_functions import CLabel, CLabelledLineEdit, warningMessage, CHorizontalSeparator
 
 from settings import editUser
 
@@ -71,6 +71,8 @@ class userSettingsWindow(qtw.QMainWindow):
         self.userNameEntry.setText( self.parent.config['USER']['username'] )
         self.userSettingsLayout.addWidget(userNameEntry_l)
 
+        self.userSettingsLayout.addWidget(CHorizontalSeparator())
+
         # Add public key checkbox
         self.useKeyCheckBox = qtw.QCheckBox("Use public key?")
         self.useKeyCheckBox.setChecked( self.parent.config['USER']['use_key'].capitalize() == 'True' )
@@ -81,10 +83,19 @@ class userSettingsWindow(qtw.QMainWindow):
         self.publicKeyEntry.setText( self.parent.config['USER']['path_key'] )
         self.userSettingsLayout.addWidget(publicKeyEntry_l)
 
+        self.userSettingsLayout.addWidget(CHorizontalSeparator())
+
         # Add dark theme checkbox
         self.darkThemeCheckBox = qtw.QCheckBox("Use dark theme?")
         self.darkThemeCheckBox.setChecked( self.parent.config['USER']['dark_theme'].capitalize() == 'True' )
         self.userSettingsLayout.addWidget(self.darkThemeCheckBox)
+
+        self.userSettingsLayout.addWidget(CHorizontalSeparator())
+
+        # Add public key checkbox
+        self.autoConnectCheckBox = qtw.QCheckBox("Auto-connect on start?")
+        self.autoConnectCheckBox.setChecked( self.parent.config['USER']['autostart'].capitalize() == 'True' )
+        self.userSettingsLayout.addWidget(self.autoConnectCheckBox)
 
         # Display the widget
         self.userSettingsLayout.setAlignment(qtc.Qt.AlignTop)
@@ -99,6 +110,22 @@ class userSettingsWindow(qtw.QMainWindow):
         # Generate the widget
         self.advancedSettingsWidget = qtw.QWidget()
         self.advancedSettingsLayout = qtw.QVBoxLayout(self.advancedSettingsWidget)
+
+        # Add a label
+        autoRefreshLabel = CLabel("Auto-Refresh")
+        self.advancedSettingsLayout.addWidget(autoRefreshLabel)
+
+        # Add public key checkbox
+        self.autoRefreshCheckBox = qtw.QCheckBox("Enable Auto-Refresh?")
+        self.autoRefreshCheckBox.setChecked( self.parent.config['USER']['autorefresh'].capitalize() == 'True' )
+        self.advancedSettingsLayout.addWidget(self.autoRefreshCheckBox)
+
+        # Add the entry to get jobs
+        getRefreshTimeEntry_l, self.getRefreshTimeEntry = CLabelledLineEdit('Time between refresh (min):')
+        self.getRefreshTimeEntry.setText( self.parent.config['USER']['refresh_time'] )
+        self.advancedSettingsLayout.addWidget(getRefreshTimeEntry_l)
+
+        self.advancedSettingsLayout.addWidget(CHorizontalSeparator())
 
         # Add a label
         serverCommandsLabel = CLabel("Server Commands")
@@ -168,11 +195,18 @@ class userSettingsWindow(qtw.QMainWindow):
         self.parent.config['USER']['use_key'] = str(self.useKeyCheckBox.isChecked())
         self.parent.config['USER']['path_key'] = self.publicKeyEntry.text()
         self.parent.config['USER']['dark_theme'] = str(self.darkThemeCheckBox.isChecked())
+        self.parent.config['USER']['autostart'] = str(self.autoConnectCheckBox.isChecked())
+        self.parent.config['USER']['autorefresh'] = str(self.autoRefreshCheckBox.isChecked())
+        self.parent.config['USER']['refresh_time'] = str(self.getRefreshTimeEntry.text())
         self.parent.config['USER']['get_jobs'] = self.getJobCmdEntry.text()
         self.parent.config['USER']['kill_jobs'] = self.killJobCmdEntry.text()
 
         # Save in the file
         editUser(self.parent.config['USER'])
+
+        # Start auto refresh
+        if self.autoRefreshCheckBox.isChecked() and self.parent.active_server:
+            self.parent.periodicRefresh()
 
         # Close the window at the end
         self.close()

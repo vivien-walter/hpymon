@@ -10,7 +10,7 @@ from settings import loadServer
 
 # Define the server class
 class Server:
-    def __init__(self, name, ip_address, username, identification={'type':'publickey', 'key':'~/.ssh/id_rsa'}, port=22, tunnel=None, read=True, commands={'get_jobs':'squeue -o %all -u', 'kill_jobs':'scancel'}, queryname=None, kill_col='JOBID'):
+    def __init__(self, name, ip_address, username, identification={'type':'publickey', 'key':'~/.ssh/id_rsa'}, port=22, tunnel=None, read=True, commands={'get_jobs':'squeue -o %all -u', 'kill_jobs':'scancel'}, queryname=None, kill_col='JOBID', display={'use_display':True, 'display_name':'---'}):
 
         # Get the server info
         self.name = name
@@ -38,6 +38,10 @@ class Server:
         self.get_jobs = commands['get_jobs']
         self.kill_jobs = commands['kill_jobs']
         self.kill_col = kill_col
+
+        # Get the custom display
+        self.use_display = display['use_display']
+        self.display_name = display['display_name']
 
     ##-\-\-\-\-\-\-\-\-\-\
     ## ACCESS INFORMATIONS
@@ -239,6 +243,8 @@ def _format_dictionary(server_dict):
     'use_key': server_dict['id_type'] == 'publickey',
     'path_key': server_dict['id_key'],
     'read_jobs':server_dict['read_jobs'] == 'True',
+    'use_display':server_dict['use_display'] == 'True',
+    'display_name': server_dict['display_name'],
     'use_tunnel':False,
     'tunnel_selection': None,
     'queryname': server_dict['query_name'],
@@ -269,6 +275,16 @@ def generateServer(server_details):
         - server_class { Server class } - Instance of the Server class to send the commands to.
     """
 
+    # UPDATE -------------------
+    # --------------------------
+
+    # Check if new settings are missing
+    if 'use_display' not in server_details.keys():
+        server_details['use_display'] = False
+        server_details['display_name'] = '---'
+
+    # --------------------------
+
     # Load the tunnel if needed
     if server_details['use_tunnel']:
         tunnel = openServer(server_details['tunnel_selection'], use_name=True)
@@ -289,6 +305,12 @@ def generateServer(server_details):
     'kill_jobs':server_details['kill_jobs']
     }
 
+    # Set the custom display
+    display_details = {
+    'use_display':server_details['use_display'],
+    'display_name':server_details['display_name']
+    }
+
     # Generate the server instance
     new_server_class = Server(
     server_details['name'],
@@ -300,7 +322,8 @@ def generateServer(server_details):
     read=server_details['read_jobs'],
     commands=job_commands,
     queryname=server_details['queryname'],
-    kill_col=server_details['kill_col']
+    kill_col=server_details['kill_col'],
+    display=display_details
     )
 
     return new_server_class

@@ -53,6 +53,9 @@ def _init_default_config(file_path, add_default_user=True):
         'use_key':True,
         'path_key':'~/.ssh/id_rsa',
         'dark_theme':False,
+        'autostart':True,
+        'autorefresh':True,
+        'refresh_time':30,
         'get_jobs':'squeue -o %all -u',
         'kill_jobs':'scancel',
         'kill_col': 'JOBID'
@@ -127,6 +130,8 @@ def _add_server(server, config, file_name='config.ini'):
     'user':server.username,
     'id_type':server.identification['type'],
     'id_key':server.identification['key'],
+    'use_display':server.use_display,
+    'display_name':server.display_name,
     'tunnel':tunnel_text,
     'read_jobs':server.read,
     'query_name':server.queryname,
@@ -152,6 +157,9 @@ def _replace_settings(settings, config, file_name='config.ini'):
     'use_key':settings['use_key'],
     'path_key':settings['path_key'],
     'dark_theme':settings['dark_theme'],
+    'autostart':settings['autostart'],
+    'autorefresh':settings['autorefresh'],
+    'refresh_time':settings['refresh_time'],
     'get_jobs':settings['get_jobs'],
     'kill_jobs':settings['kill_jobs'],
     'kill_col': 'JOBID'
@@ -173,11 +181,36 @@ def _is_display_in_file(display_name, config):
 # Add the information of the display in the file
 def _add_display(display, config, file_name='display_config.ini'):
 
-    # Add the server
+    # Add the display
     config[display.name] = {
     'display_type':display.display_type,
-    'column_names':display.columns
     }
+
+    # Add information on a column selection
+    if 'column' in display.display_type:
+        config[display.name]['column_names'] = str(display.columns)
+
+    # Add information on a custom display
+    if 'selection' in display.display_type:
+
+        # Add the name of the column
+        config[display.name]['column_selection'] = display.selection.column
+        config[display.name]['use_path'] = str(display.selection.use_path)
+        config[display.name]['separator'] = str(display.selection.separator)
+
+        # Add all the selection conditions
+        if len(display.selection.conditions) == 0:
+            config[display.name]['conditions'] = 'None'
+        else:
+            for index, condition_list in display.selection.conditions:
+                config[display.name]['conditions_'+str(index)] = str(condition_list)
+
+        # Add all the selection sorting conditions
+        if len(display.selection.sorting['columns']) == 0:
+            config[display.name]['sorting'] = 'None'
+        else:
+            for position, (index, condition_list) in enumerate( zip(display.selection.sorting['columns'], display.selection.sorting['names']) ):
+                config[display.name]['sorting_'+str(index)] = str([position, condition_list])
 
     # Get the path to the config file
     file_path = _return_config_path(file_name=file_name)
@@ -221,6 +254,17 @@ def loadConfig(file_name='config.ini'):
 
     # Convert the content into a dict
     conf_dict = _config2dict(config)
+
+    # UPDATE -------------------
+    # --------------------------
+
+    # Check if new settings are missing
+    if 'autostart' not in conf_dict['USER'].keys():
+        conf_dict['USER']['autostart'] = 'False'
+        conf_dict['USER']['autorefresh'] = 'False'
+        conf_dict['USER']['refresh_time'] = '30'
+
+    # --------------------------
 
     return conf_dict
 
@@ -318,6 +362,16 @@ def loadServer(server_identification, use_name=False, file_name='config.ini'):
             opened_server = config[server_name]
             opened_server['name'] = server_name
 
+    # UPDATE -------------------
+    # --------------------------
+
+    # Check if new settings are missing
+    if 'use_display' not in opened_server.keys():
+        opened_server['use_display'] = False
+        opened_server['display_name'] = '---'
+
+    # --------------------------
+
     return opened_server
 
 # ------------------------------------
@@ -359,7 +413,7 @@ def addDisplay(display, file_name='display_config.ini', replace=True):
 
     """ Add a custom display setting in the config file.
     Argument(s):
-        - display { CustomDisplay class } - Instance of the CustomDisplay class to save in the config file.
+        - display { CustomDisplay class } - Instance of the class to save in the config file.
         - file_name { str } - (Opt.) Name of the config file to edit.
                               Default is display_config.ini.
         - replace { bool } - (Opt.) Replace the existing display in the config file if it exists.
@@ -399,12 +453,14 @@ def displayExists(display, file_name='display_config.ini'):
 
 # -------------------------------
 # Get the list of custom displays
-def getDisplayList(file_name='display_config.ini'):
+def getDisplayList(file_name='display_config.ini', column_only=False):
 
     """ Get the list of custom displays
     Argument(s):
         - file_name { str } - (Opt.) Name of the config file to edit.
                               Default is display_config.ini.
+        - column_only { bool } - (Opt.) Only return custom column selections.
+                                 Default is False.
     Output(s):
         - display_list { list of str } - List of the custom displays.
     """
@@ -415,10 +471,41 @@ def getDisplayList(file_name='display_config.ini'):
     # Convert in a directory
     display_dict = _config2dict(config)
 
-    # Get the list
+    # Get the display list
     display_list = [x for x in list(display_dict.keys()) if x != "USER"]
 
+    # Refine the list
+    if column_only:
+        display_list = [x for x in display_list if display_dict[x]['display_type'] == "column"]
+
     return display_list
+
+# -------------------------------
+# Get the list of custom displays
+def getDisplayNameTypeList(file_name='display_config.ini'):
+
+    """ Get the list of custom displays
+    Argument(s):
+        - file_name { str } - (Opt.) Name of the config file to edit.
+                              Default is display_config.ini.
+    Output(s):
+        - display_list { list of str } - List of the custom displays names.
+        - display_types { list of str } - List of the custom displays types.
+    """
+
+    # Get the content
+    config = _open_config_file(file_name=file_name)
+
+    # Convert in a directory
+    display_dict = _config2dict(config)
+
+    # Get the display list
+    display_list = [x for x in list(display_dict.keys()) if x != "USER"]
+
+    # Get the types
+    display_types = [display_dict[x]['display_type'] for x in display_list]
+
+    return display_list, display_types
 
 # -------------------------------------
 # Load the custom display from the file

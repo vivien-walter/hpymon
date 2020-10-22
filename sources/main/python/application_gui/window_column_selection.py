@@ -69,7 +69,7 @@ class selectColumnsWindow(qtw.QMainWindow):
         self.columnSelectionLayout.addWidget(self.columnsTable)
 
         # Populate the widget
-        self.updateColumnList()
+        self.updateElementList()
 
         # Add the name entry
         customColumnLabelAndEntry, self.customColumnsEntry = CLabelledLineEdit("Selection Name")
@@ -113,9 +113,9 @@ class selectColumnsWindow(qtw.QMainWindow):
     ## UPDATE THE DISPLAY
     ##-/-/-/-/-/-/-/-/-/
 
-    # ----------------------------
-    # Populate the list of servers
-    def updateColumnList(self):
+    # -----------------------------
+    # Populate the list of elements
+    def updateElementList(self):
 
         # Delete the values
         rowCount = self.columnsTable.rowCount()
@@ -150,29 +150,6 @@ class selectColumnsWindow(qtw.QMainWindow):
         header = self.columnsTable.horizontalHeader()
         for i in range( 2 ):
             header.setSectionResizeMode(i, qtw.QHeaderView.ResizeToContents)
-
-    # ----------------------------
-    # Populate the list of servers
-    def _updateColumnList(self):
-
-        # Empty the widget
-        for i in reversed(range(self.columnScrollLayout.count())):
-            self.columnScrollLayout.itemAt(i).widget().deleteLater()
-
-        # Populate the widget
-        self.column_checkboxes = []
-        for name in self.columns_names:
-
-            serverWidget = qtw.QWidget()
-            serverLayout = qtw.QHBoxLayout(serverWidget)
-
-            serverName = CLabel(name)
-            serverLayout.addWidget(serverName)
-
-            self.column_checkboxes.append( qtw.QCheckBox("Display") )
-            serverLayout.addWidget(self.column_checkboxes[-1])
-
-            self.columnScrollLayout.addWidget(serverWidget)
 
     ##-\-\-\-\-\-\-\-\-\-\
     ## SAVE THE SELECTIONS
