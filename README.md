@@ -248,6 +248,37 @@ The second available type of custom display, simply named *Custom Display*, will
 
 *Note: Connection to at least one server is required to open the custom display creation window, as HPyMon will retrieve the list of columns from the server.*
 
+The custom display will look at one of the columns from the job list, usually the *WORK_DIR* column that gather the list of the folders in which the simulation is stored, and generate a list of elements from it.
+
+For example, if the folder path ressembles
+
+```shell
+>>> /username/molecule/concentration/temperature/
+```
+
+HPyMon will extract 4 elements from it: (1) username, (2) molecule, (3) concentration and (4) temperature. The user can then select which element should be used to select and/or sort the job to refine the display.
+
+When creating the display, the following options can be selected:
+
+* **Column for the custom display.** Name of the column (extracted in the job list) to use to set the pattern to use to select and sort the jobs.
+* **Column is a path?** This box is ticked by default, as HPyMon has been designed to use the content of the column WORK_DIR on slurm. By unticking this box, a separator can be picked instead.
+* **Separator to use.** Specify the separator to use in the column to sort the elements.
+* **Use Column selection?** Add a specific column selection display to this custom display. To chose from the list of Column selection displays already in the memory.
+
+The displayed table in the window corresponds to all the elements found. Each of the elements can be picked to either **select** and or **sort** by the values found for these elements.
+
+* **Sort by...** Using this option will sort all the jobs from the list based on the values of this element.
+
+    * **Name** Generic name to display for this element (*e.g.* Concentration, Temperature, Llamas)
+    * **Position** Relative position in the tree presentation of the jobs.
+
+* **Select by...** Using this option will refine the jobs from the list by selecting only the jobs that have a value matching the one specified for this element.
+* **Restrictions** List of the value(s) for the element to be kept for the job display. To use several values, separate each of them by a simple coma ,
+
+A typical output will look like the following screenshot
+
+![Custom display creation](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/display_example.png)
+
 ### Custom display management
 
 To edit or delete existing custom display, you can use the custom display manager of HPyMon. It can be accessed using the HPyMon menu by selecting **Job Display/Manage Custom Displays**.
