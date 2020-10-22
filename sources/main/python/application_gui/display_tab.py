@@ -382,7 +382,7 @@ class serverTab:
 
         if use_custom and custom_selection != "---":
             customColumns = contextMenu.addAction("Edit Current Display")
-            customColumns.triggered.connect(self.editColumnsDisplay)
+            customColumns.triggered.connect(lambda : self.editColumnsDisplay(row_id=row))
         else:
             customColumns = contextMenu.addAction("Select Columns")
             customColumns.triggered.connect(self.selectColumnsDisplay)
@@ -415,22 +415,26 @@ class serverTab:
 
     # ---------------------
     # Edit column selection
-    def editColumnsDisplay(self):
+    def editColumnsDisplay(self, row_id=0):
+
+        # Get the job to use as ref
+        job_content = self.jobs.loc[row_id]
 
         # Load the current selection
         display_name = self.customDisplayComboBox.currentText()
         display_dict = loadDisplay(display_name)
         selected_display = generateCustomDisplay(display_dict)
 
-        # Open the selection in the window
-        _open_window(self.parent, selectColumnsWindow, 'column_selection', column_names=self.jobs.columns, loaded_display=selected_display)
+        # Load a column selection
+        if selected_display.display_type == 'column':
+            _open_window(self.parent, selectColumnsWindow, 'column_selection', column_names=self.jobs.columns, loaded_display=selected_display)
+
+        else:
+            _open_window(self.parent, selectCustomDisplayWindow, 'custom_display', column_names=self.jobs.columns, example_job=job_content, loaded_display=selected_display)
 
     # ----------------------
     # New custom job display
     def createCostumDisplay(self, row_id=0):
-
-        # Get the job to use as ref
-        job_content = self.jobs.loc[row_id]
 
         # Open the custom display creation window
         _open_window(self.parent, selectCustomDisplayWindow, 'custom_display', column_names=self.jobs.columns, example_job=job_content)
