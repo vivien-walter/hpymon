@@ -2,7 +2,7 @@
 
 ![HPyMon logo](https://github.com/vivien-walter/hpymon/blob/main/sources/main/icons/linux/256.png)
 
-![version](https://img.shields.io/badge/version-1.0-f39f37)
+![version](https://img.shields.io/badge/version-1.0.1-f39f37)
 
 HPyMon (HPC Python Monitor) is a Python-based GUI software made to display the job running on a distant HPC.
 
@@ -12,9 +12,9 @@ HPyMon (HPC Python Monitor) is a Python-based GUI software made to display the j
 
 ### General Information
 
-**Current Version:** 1.0
+**Current Version:** 1.0.1
 
-**Release Data:** 22-10-2020
+**Release Data:** 23-10-2020
 
 **Author:** Vivien Walter
 
