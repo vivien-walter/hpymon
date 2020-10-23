@@ -27,7 +27,7 @@ class mainGUI(qtw.QMainWindow):
         self.appctxt = application_context
         self.application = application_context.app
         self.title = "HPyMon"
-        self.version = "v1.0"
+        self.version = "v1.0.1"
         self.subWindows = {}
         self.servers = []
         self.active_server = False

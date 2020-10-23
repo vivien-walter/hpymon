@@ -184,6 +184,7 @@ def _add_display(display, config, file_name='display_config.ini'):
     # Add the display
     config[display.name] = {
     'display_type':display.display_type,
+    'subdisplay_name':'---'
     }
 
     # Add information on a column selection
@@ -211,6 +212,10 @@ def _add_display(display, config, file_name='display_config.ini'):
         else:
             for position, (index, condition_list) in enumerate( zip(display.selection.sorting['columns'], display.selection.sorting['names']) ):
                 config[display.name]['sorting_'+str(index)] = str([position, condition_list])
+
+        # Add column selection
+        if 'selection_column' in display.display_type:
+            config[display.name]['subdisplay_name'] = display.subdisplay_name
 
     # Get the path to the config file
     file_path = _return_config_path(file_name=file_name)

@@ -53,12 +53,12 @@ class Selection:
 ##-/-/-/-/-/-/-/
 
 class CustomDisplay:
-    def __init__(self, name, display_type='column', column_names=None, selection_class=None):
+    def __init__(self, name, display_type='column', column_names=None, selection_class=None, subdisplay=None):
 
         # Settings of the display
         self.name = name
         self.display_type = display_type
-        self.subdisplay_name = None
+        self.subdisplay_name = subdisplay
 
         # Settings for the custom column display
         self.columns = column_names

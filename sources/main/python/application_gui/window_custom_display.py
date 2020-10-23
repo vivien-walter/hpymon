@@ -557,6 +557,7 @@ class selectCustomDisplayWindow(qtw.QMainWindow):
                 # Update the column contents
                 display_class.display_type = 'selection_column'
                 display_class.columns = loaded_display.columns
+                display_class.subdisplay_name = self.columnDisplayComboBox.currentText()
 
             # Check if the name is not in the file
             save_in_file = True
