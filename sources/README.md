@@ -1,6 +1,6 @@
-# H-PyMon
+# HPyMon
 
-How-to compile a H-PyMon executable from source files
+How-to compile a HPyMon executable from source files
 
 ## Instructions
 
