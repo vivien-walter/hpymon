@@ -67,6 +67,8 @@ The (new) executables will be uploaded as soon as they are generated.
 
 * **MacOSX High Sierra** (10.13) and above (uploaded: 22/10/2020)
 
+* **Windows 10** (uploaded: 02/11/2020)
+
 ### Compile from source
 
 If your Operating System is not available in the provided executables, it is possible for you
@@ -205,7 +207,7 @@ After connection to the server(s), the main display of HPyMon will be used to di
 
 ![Main window](https://github.com/vivien-walter/hpymon/blob/main/sources/main/resources/base/help/main.png)
 
-The job list and status is not constantly refreshed. To refresh the list, use the **Refresh** button which has replaced the *Connect* one. If you have ticked *Auto-Refresh* in the User settings, the job list will refresh automatically. 
+The job list and status is not constantly refreshed. To refresh the list, use the **Refresh** button which has replaced the *Connect* one. If you have ticked *Auto-Refresh* in the User settings, the job list will refresh automatically.
 *Note: This button will only refresh the list of the server/tab currently selected.*
 
 Two types of interactions can be made with the display:
@@ -218,7 +220,7 @@ Two types of interactions can be made with the display:
 
     * **Kill Job** will send a command to the server to cancel this specific job. An alert will ask the user to confirm its choice, but once the cancellation has been confirmed this operation cannot be undone.
 * **Select Columns** (*If no custom display has been selected*). This will open a new window to create a column selection of the job list. See below for more information.
-  
+
     * **Define Custom Display** (*If no custom display has been selected*). This will open a new window to create a custom display of the job list. See below for more information.
 * **Edit Current Display** (*If a custom display has been selected*). This will open a new window to edit the current selected custom display of the job list. See below for more information.
 
